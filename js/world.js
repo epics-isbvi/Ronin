@@ -1757,6 +1757,35 @@ const fishermanInteractions = hakodateFishermen.flatMap((fisherman) => {
     ];
 });
 
+const hakodateStoryteller = { x: 64, y: 168, width: 16, height: 20 };
+
+const storytellerInteractions = [
+    {
+        id: "hakodate-storyteller",
+        ...hakodateStoryteller,
+        prompt: "Talk",
+        speaker: "Road Storyteller",
+        dialogue: [
+            "Welcome to Hakodate, traveler. Sit, and hear a tale of the sea.",
+            "They say a warrior was swallowed by a whale, and the village fed him through the storm.",
+            "Strange story, but kindness travels farther than a name.",
+            "The fishermen by the shore each need a small favor. Speak with them again."
+        ],
+        excludes: ["hakodate-quest-given"],
+        setsFlag: "hakodate-quest-given",
+        scene: "hakodate"
+    },
+    {
+        id: "hakodate-storyteller-after",
+        ...hakodateStoryteller,
+        prompt: "Talk",
+        speaker: "Road Storyteller",
+        dialogue: ["Help the fishermen, and the sea will help you."],
+        requires: ["hakodate-quest-given"],
+        scene: "hakodate"
+    }
+];
+
 const dugTiles = new Set();
 
 // The Rod Maker wants exactly these; only one grove tree matches all three.
@@ -2537,6 +2566,7 @@ const gardenBrotherQuestInteractions = [
 
 const interactables = [
     ...fishermanInteractions,
+    ...storytellerInteractions,
     ...treeInteractions,
     ...busanInteractions,
     ...nagasakiGardenInteractions,

@@ -8805,7 +8805,7 @@ function drawShrineRun() {
 
 function drawFishermen() {
 
-    hakodateFishermen.forEach(({ x, y, shirt }) => {
+    [...hakodateFishermen, { ...hakodateStoryteller, shirt: "#8a4a3a" }].forEach(({ x, y, shirt }) => {
         ctx.fillStyle = "#29402a";
         ctx.fillRect(x + 1, y + 17, 14, 3);
 
