@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Important for phones -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ronin">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#222222">
+
+    <title>Ronin</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id="gameContainer">
+
+        <!-- The actual game -->
+        <canvas id="gameCanvas" width="320" height="240"></canvas>
+
+        <!-- Virtual joystick -->
+        <div id="joystick">
+            <div id="joystickKnob"></div>
+        </div>
+
+        <div id="combatControls" hidden>
+            <button type="button" data-combat-action="dodge-left">Dodge Left</button>
+            <button type="button" data-combat-action="block">Block</button>
+            <button type="button" data-combat-action="dodge-right">Dodge Right</button>
+            <button type="button" data-combat-action="attack">Attack</button>
+        </div>
+
+        <!-- On-screen buttons: A acts, B backs out, Menu opens the pause menu -->
+        <div id="touchButtons">
+            <button type="button" id="menuButton">Menu</button>
+            <button type="button" id="buttonB" data-touch-key="escape">B</button>
+            <button type="button" id="buttonA" data-touch-key=" ">A</button>
+        </div>
+
+        <div id="danceControls" hidden aria-label="Dance direction controls">
+            <button type="button" class="dance-up" data-dance-direction="up" aria-label="Up">UP</button>
+            <button type="button" class="dance-left" data-dance-direction="left" aria-label="Left">LEFT</button>
+            <button type="button" class="dance-down" data-dance-direction="down" aria-label="Down">DOWN</button>
+            <button type="button" class="dance-right" data-dance-direction="right" aria-label="Right">RIGHT</button>
+        </div>
+
+        <div id="cartControls" hidden aria-label="Cart controls">
+            <button type="button" class="cart-left" data-cart-action="left" aria-label="Move left">LEFT</button>
+            <button type="button" class="cart-right" data-cart-action="right" aria-label="Move right">RIGHT</button>
+            <button type="button" class="cart-jump" data-cart-action="jump" aria-label="Jump">JUMP</button>
+            <button type="button" class="cart-duck" data-cart-action="duck" aria-label="Duck">DUCK</button>
+        </div>
+
+    </div>
+
+    <div id="pauseMenu" hidden>
+        <div class="menuPanel">
+            <p id="pauseObjective"></p>
+            <button type="button" data-menu="resume">Resume</button>
+            <button type="button" data-menu="inventory">Inventory</button>
+            <button type="button" data-menu="journal">Journal</button>
+            <button type="button" data-menu="settings">Settings</button>
+            <button type="button" data-menu="help">How to play</button>
+            <button type="button" data-menu="back">Back / Leave</button>
+            <button type="button" data-menu="slots">Save slots</button>
+            <button type="button" data-menu="logout">Log out</button>
+        </div>
+    </div>
+
+    <div id="slotScreen" class="overlayScreen" hidden>
+        <div class="screenPanel">
+            <h1>RONIN</h1>
+            <p id="slotAccount" class="screenNote"></p>
+            <div id="slotList"></div>
+            <p id="slotMessage" role="alert" class="screenNote"></p>
+            <div class="loginButtons">
+                <button type="button" id="slotLogout">Log out</button>
+                <button type="button" id="slotDeleteAccount" class="dangerButton">Delete account</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsScreen" class="overlayScreen" hidden>
+        <div class="screenPanel">
+            <h1>Settings</h1>
+            <label class="sliderRow">Music
+                <input id="musicVolume" type="range" min="0" max="100">
+            </label>
+            <label class="sliderRow">Sound effects
+                <input id="sfxVolume" type="range" min="0" max="100">
+            </label>
+            <label class="checkRow"><input id="muteAudio" type="checkbox"> Mute all audio</label>
+            <label class="checkRow"><input id="showObjective" type="checkbox"> Show objective hints</label>
+            <h2>Keyboard controls</h2>
+            <div id="bindingList"></div>
+            <p id="bindingMessage" role="alert" class="screenNote"></p>
+            <div class="loginButtons">
+                <button type="button" id="resetBindings">Reset controls</button>
+                <button type="button" id="closeSettings">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="helpScreen" class="overlayScreen" hidden>
+        <div class="screenPanel">
+            <h1>How to play</h1>
+            <p class="screenNote">Taro carries his father's sword across Japan to learn the truth behind a name history called traitor. Talk to everyone, solve each land's trials, collect the key, and take the east gate onward. Your journal records what you learn, and the pause menu always shows your current objective.</p>
+            <ul id="helpControls"></ul>
+            <div class="loginButtons">
+                <button type="button" id="closeHelp">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="endingScreen" class="overlayScreen" hidden>
+        <div class="screenPanel">
+            <h1>The Road Home</h1>
+            <p class="screenNote">Taro no longer needs the world to remember his father kindly. He knows what he chose, and why.</p>
+            <p id="endingStats" class="screenNote"></p>
+            <div class="loginButtons">
+                <button type="button" id="endingContinue">Keep exploring</button>
+                <button type="button" id="endingNewGamePlus">New Game+</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginScreen">
+        <form id="loginForm" autocomplete="on">
+            <h1>RONIN</h1>
+            <label>Email
+                <input id="loginEmail" type="email" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+            </label>
+            <label>Password
+                <input id="loginPassword" type="password" autocomplete="current-password" minlength="8" required>
+            </label>
+            <p id="loginMessage" role="alert"></p>
+            <div class="loginButtons">
+                <button type="submit" id="loginButton">Log in</button>
+                <button type="button" id="createButton">Create account</button>
+            </div>
+            <button type="button" id="forgotButton" class="linkButton">Forgot password?</button>
+        </form>
+        <form id="recoveryForm" hidden>
+            <h1>RONIN</h1>
+            <label>New password
+                <input id="newPassword" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <p id="recoveryMessage" role="alert"></p>
+            <div class="loginButtons">
+                <button type="submit" id="recoveryButton">Set password</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/errors.js?v=18"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/audio.js?v=18"></script>
+    <script src="js/settings.js?v=18"></script>
+    <script src="js/world.js?v=18"></script>
+    <script src="js/game.js?v=18"></script>
+
+</body>
+</html>

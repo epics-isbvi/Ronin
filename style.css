@@ -1,0 +1,725 @@
+/* ========================================
+   RONIN - PAGE
+   ======================================== */
+
+:root {
+    --app-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+    :root {
+        --app-height: 100dvh;
+    }
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: var(--app-height);
+    overflow: hidden;
+
+    background: #222;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    touch-action: none;
+    overscroll-behavior: none;
+
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+/* ========================================
+   GAME CONTAINER
+   ======================================== */
+
+#gameContainer {
+    position: relative;
+
+    width: 100vw;
+    height: var(--app-height);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    touch-action: none;
+}
+
+
+/* ========================================
+   GAME CANVAS
+   ======================================== */
+
+canvas {
+    display: block;
+
+    /*
+       The browser will scale the 320x240
+       game to fit the available screen.
+    */
+    width: min(100vw, calc(var(--app-height) * 4 / 3));
+    height: auto;
+    aspect-ratio: 4 / 3;
+
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+
+    background: #567d46;
+}
+
+
+/* ========================================
+   VIRTUAL JOYSTICK
+   ======================================== */
+
+#joystick {
+    position: absolute;
+
+    left: calc(30px + env(safe-area-inset-left));
+    bottom: calc(30px + env(safe-area-inset-bottom));
+
+    width: 90px;
+    height: 90px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.18);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+
+    touch-action: none;
+}
+
+
+/* Joystick knob */
+
+#joystickKnob {
+    position: absolute;
+
+    width: 38px;
+    height: 38px;
+
+    left: 26px;
+    top: 26px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.55);
+
+    pointer-events: none;
+}
+
+
+/* Boss combat controls */
+
+#combatControls {
+    position: absolute;
+    right: calc(18px + env(safe-area-inset-right));
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 220px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    touch-action: none;
+}
+
+#combatControls[hidden] {
+    display: none;
+}
+
+#combatControls button {
+    min-height: 42px;
+    border: 2px solid #d6b56c;
+    background: rgba(23, 23, 23, 0.9);
+    color: #ffffff;
+    font: bold 11px Georgia, serif;
+    touch-action: none;
+}
+
+#combatControls button:active {
+    background: #76533b;
+}
+
+#combatControls button:disabled {
+    opacity: 0.45;
+}
+
+#combatControls button.ready {
+    background: #9b3f35;
+    border-color: #f0c76b;
+    box-shadow: 0 0 0 3px rgba(240, 199, 107, 0.35);
+    animation: combat-attack-pulse 0.7s steps(2, end) infinite;
+}
+
+@keyframes combat-attack-pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.06); }
+}
+
+
+/* ========================================
+   DESKTOP
+   Hide joystick when using a mouse/keyboard
+   ======================================== */
+
+@media (hover: hover) and (pointer: fine) {
+
+    #joystick,
+    #buttonA,
+    #buttonB,
+    #danceControls,
+    #cartControls {
+        display: none;
+    }
+
+    #combatControls {
+        display: none !important;
+    }
+}
+
+
+/* ========================================
+   PORTRAIT PHONE
+   ======================================== */
+
+@media (orientation: portrait) and (pointer: coarse) {
+
+    #gameContainer::after {
+        content: "Please turn your phone sideways to play Ronin.";
+
+        position: absolute;
+
+        left: 50%;
+        top: 50%;
+
+        transform: translate(-50%, -50%);
+
+        width: 80%;
+
+        text-align: center;
+
+        font-family: Georgia, serif;
+        font-size: 20px;
+
+        color: white;
+    }
+
+    #joystick,
+    #touchButtons,
+    #cartControls {
+        display: none;
+    }
+}
+
+
+/* ========================================
+   TOUCH BUTTONS
+   ======================================== */
+
+#touchButtons {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+#touchButtons button {
+    position: absolute;
+    pointer-events: auto;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    font: bold 18px Georgia, serif;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#touchButtons button:active {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+#danceControls {
+    position: absolute;
+    left: 50%;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    width: 184px;
+    height: 104px;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-areas: ". up ." "left down right";
+    gap: 4px;
+    z-index: 5;
+    touch-action: none;
+}
+
+#danceControls[hidden] {
+    display: none;
+}
+
+#danceControls button {
+    border: 2px solid #f0c76b;
+    border-radius: 6px;
+    background: rgba(23, 23, 23, 0.9);
+    color: #ffffff;
+    font: bold 10px Georgia, serif;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#danceControls button:active {
+    background: #9b3f35;
+}
+
+#danceControls .dance-up { grid-area: up; }
+#danceControls .dance-left { grid-area: left; }
+#danceControls .dance-down { grid-area: down; }
+#danceControls .dance-right { grid-area: right; }
+
+body.dance-active #joystick,
+body.dance-active #buttonA {
+    display: none;
+}
+
+#cartControls {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 6;
+    touch-action: none;
+}
+
+#cartControls[hidden] {
+    display: none;
+}
+
+#cartControls button {
+    position: absolute;
+    pointer-events: auto;
+    min-width: 62px;
+    min-height: 62px;
+    border: 2px solid #d6b56c;
+    border-radius: 50%;
+    background: rgba(31, 25, 22, 0.88);
+    color: #ffffff;
+    font: bold 10px Georgia, serif;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#cartControls button:active {
+    background: #9b3f35;
+}
+
+#cartControls .cart-left {
+    left: calc(20px + env(safe-area-inset-left));
+    bottom: calc(28px + env(safe-area-inset-bottom));
+}
+
+#cartControls .cart-right {
+    left: calc(94px + env(safe-area-inset-left));
+    bottom: calc(28px + env(safe-area-inset-bottom));
+}
+
+#cartControls .cart-jump {
+    right: calc(24px + env(safe-area-inset-right));
+    bottom: calc(62px + env(safe-area-inset-bottom));
+    min-width: 70px;
+    min-height: 70px;
+}
+
+#cartControls .cart-duck {
+    right: calc(106px + env(safe-area-inset-right));
+    bottom: calc(22px + env(safe-area-inset-bottom));
+}
+
+body.cart-active #joystick,
+body.cart-active #buttonA {
+    display: none;
+}
+
+body.cart-active #buttonB {
+    right: auto;
+    left: calc(20px + env(safe-area-inset-left));
+    top: calc(12px + env(safe-area-inset-top));
+    bottom: auto;
+    width: 46px;
+    height: 46px;
+}
+
+#buttonA,
+#buttonB {
+    border-radius: 50%;
+}
+
+#buttonA {
+    width: 76px;
+    height: 76px;
+    right: calc(28px + env(safe-area-inset-right));
+    bottom: calc(44px + env(safe-area-inset-bottom));
+}
+
+#buttonB {
+    width: 56px;
+    height: 56px;
+    right: calc(116px + env(safe-area-inset-right));
+    bottom: calc(28px + env(safe-area-inset-bottom));
+}
+
+#menuButton {
+    top: calc(10px + env(safe-area-inset-top));
+    right: calc(14px + env(safe-area-inset-right));
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 18px;
+    font-size: 13px;
+}
+
+body.combat-active #buttonA,
+body.combat-active #buttonB {
+    display: none;
+}
+
+body:not(.in-game) #touchButtons,
+body:not(.in-game) #joystick,
+body:not(.in-game) #combatControls {
+    display: none !important;
+}
+
+
+/* ========================================
+   LOGIN AND PAUSE MENU
+   ======================================== */
+
+#loginScreen,
+#pauseMenu {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    box-sizing: border-box;
+    overflow-y: auto;
+    touch-action: pan-y;
+}
+
+#loginScreen {
+    z-index: 30;
+    background: #1a1614;
+}
+
+#pauseMenu {
+    z-index: 20;
+    background: rgba(10, 8, 12, 0.8);
+}
+
+#loginScreen[hidden],
+#pauseMenu[hidden] {
+    display: none;
+}
+
+#loginForm,
+#recoveryForm {
+    width: min(320px, 90vw);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: #f0e6c8;
+    font-family: Georgia, serif;
+}
+
+#loginForm[hidden],
+#recoveryForm[hidden] {
+    display: none;
+}
+
+#loginForm h1,
+#recoveryForm h1 {
+    margin: 0 0 6px;
+    text-align: center;
+    letter-spacing: 0.3em;
+    color: #d6b56c;
+}
+
+#loginForm label,
+#recoveryForm label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+}
+
+/* 16px keeps iOS Safari from zooming in when a field is focused. */
+#loginForm input,
+#recoveryForm input {
+    font-size: 16px;
+    padding: 10px;
+    border: 2px solid #d6b56c;
+    border-radius: 6px;
+    background: #2a2320;
+    color: #ffffff;
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+.linkButton {
+    align-self: center;
+    border: 0;
+    background: none;
+    color: #d6b56c;
+    font: 13px Georgia, serif;
+    text-decoration: underline;
+    padding: 6px;
+}
+
+#loginMessage,
+#recoveryMessage {
+    min-height: 1.2em;
+    margin: 0;
+    font-size: 13px;
+    color: #f0a090;
+}
+
+.loginButtons {
+    display: flex;
+    gap: 8px;
+}
+
+.loginButtons button,
+.menuPanel button {
+    flex: 1;
+    min-height: 44px;
+    border: 2px solid #d6b56c;
+    border-radius: 6px;
+    background: #3a2f27;
+    color: #ffffff;
+    font: bold 15px Georgia, serif;
+}
+
+.loginButtons button:active,
+.menuPanel button:active {
+    background: #76533b;
+}
+
+.menuPanel {
+    width: min(420px, 92vw);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: auto;
+    padding: 12px 0;
+}
+
+.menuPanel button {
+    min-width: 0;
+}
+
+#pauseObjective {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid #d6b56c;
+    border-radius: 6px;
+    background: rgba(26, 22, 20, 0.9);
+    color: #f0e6c8;
+    font: 13px Georgia, serif;
+    line-height: 1.35;
+}
+
+#pauseObjective:empty {
+    display: none;
+}
+
+/* ========================================
+   FULL-SCREEN PANELS (slots, settings, help, ending)
+   ======================================== */
+
+.overlayScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    justify-content: center;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    box-sizing: border-box;
+    overflow-y: auto;
+    touch-action: pan-y;
+    background: rgba(26, 22, 20, 0.96);
+    color: #f0e6c8;
+    font-family: Georgia, serif;
+}
+
+.overlayScreen[hidden] {
+    display: none;
+}
+
+#endingScreen {
+    z-index: 45;
+}
+
+.screenPanel {
+    width: min(380px, 92vw);
+    margin: auto;
+    padding: 14px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.screenPanel h1 {
+    margin: 0;
+    text-align: center;
+    letter-spacing: 0.25em;
+    color: #d6b56c;
+    font-size: 24px;
+}
+
+.screenPanel h2 {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: #d6b56c;
+}
+
+.screenPanel ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.screenNote {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #e6d9b8;
+}
+
+.screenPanel button {
+    min-height: 40px;
+    border: 2px solid #d6b56c;
+    border-radius: 6px;
+    background: #3a2f27;
+    color: #ffffff;
+    font: bold 14px Georgia, serif;
+    padding: 0 10px;
+}
+
+.screenPanel button:active {
+    background: #76533b;
+}
+
+.screenPanel .dangerButton {
+    border-color: #c0584a;
+    color: #f0a090;
+}
+
+.slotCard {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    margin-bottom: 8px;
+    border: 2px solid #d6b56c;
+    border-radius: 6px;
+    background: #2a2320;
+}
+
+.slotInfo {
+    flex: 1 1 100%;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.slotInfo strong {
+    display: block;
+    color: #d6b56c;
+}
+
+.slotCard button {
+    flex: 1;
+    min-height: 36px;
+}
+
+.sliderRow,
+.checkRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.sliderRow input {
+    width: 55%;
+}
+
+.bindingRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.bindingRow button {
+    min-width: 120px;
+}
+
+#errorToast {
+    position: fixed;
+    left: 50%;
+    top: calc(8px + env(safe-area-inset-top));
+    transform: translateX(-50%);
+    z-index: 100;
+    max-width: 90vw;
+    padding: 8px 12px;
+    border: 2px solid #c0584a;
+    border-radius: 6px;
+    background: rgba(40, 18, 16, 0.95);
+    color: #ffd9d2;
+    font: 13px Georgia, serif;
+}
+
+#errorToast[hidden] {
+    display: none;
+}
+
+/* Short landscape phones: keep panels compact so nothing needs scrolling. */
+@media (max-height: 480px) {
+
+    .screenPanel {
+        gap: 6px;
+    }
+
+    .screenPanel h1 {
+        font-size: 18px;
+    }
+
+    #pauseObjective {
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+
+    .menuPanel {
+        gap: 6px;
+    }
+
+    .menuPanel button {
+        min-height: 36px;
+        font-size: 13px;
+    }
+}

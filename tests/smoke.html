@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ronin smoke test</title>
+    <style>
+        body { font: 14px monospace; margin: 12px; background: #111; color: #ddd; }
+        .pass { color: #7fd17f; }
+        .fail { color: #ff8a80; }
+        iframe { width: 960px; height: 540px; border: 1px solid #555; }
+    </style>
+</head>
+<body>
+    <!--
+        Open this page through a local web server (for example `python -m http.server`
+        in the repo root, then http://localhost:8000/tests/smoke.html).
+        It loads the real game, logs in a fake user, and exercises every scene.
+        window.smokeResult is { passed, failed, failures } once it finishes.
+    -->
+    <h3>Ronin smoke test</h3>
+    <div id="out">Running...</div>
+    <iframe id="game" src="../index.html"></iframe>
+
+    <script>
+        const out = document.getElementById("out");
+        const frame = document.getElementById("game");
+        const failures = [];
+        let passed = 0;
+
+        function check(name, condition, detail) {
+            const line = document.createElement("div");
+
+            if (condition) {
+                passed++;
+                line.className = "pass";
+                line.textContent = `PASS ${name}`;
+            } else {
+                failures.push(`${name}${detail ? `: ${detail}` : ""}`);
+                line.className = "fail";
+                line.textContent = `FAIL ${name}${detail ? `: ${detail}` : ""}`;
+            }
+
+            out.appendChild(line);
+        }
+
+        const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        async function main() {
+            await sleep(2500);
+            const game = frame.contentWindow;
+            const run = (code) => game.eval(code);
+
+            check("page loaded without startup errors", game.roninErrors.length === 0, game.roninErrors.join(" | "));
+            check("login screen is visible", !game.document.getElementById("loginScreen").hidden);
+            check("login form has handlers", typeof run("submitLogin") === "function");
+
+            // Fake user: the cloud calls fail harmlessly and the local path takes over.
+            await run(`startGameForUser({ id: "smoke-test-user", email: "smoke@example.com" }, 1)`);
+            check("game starts for a user", run("gameStarted") === true, game.roninErrors.join(" | "));
+            check("login screen hidden after start", game.document.getElementById("loginScreen").hidden);
+
+            check("objective is produced", typeof run("getCurrentObjective()") === "string" && run("getCurrentObjective()").length > 10);
+
+            const scenes = run(`[...new Set([
+                "tokyo", "indoor", "goryokaku", "warehouse", "yakuza-room", "kanazawa-castle",
+                "kenrokuen", "busan-home", "ship", "inari-hall", "oirase-gorge",
+                ...Object.keys(regionalMaps)
+            ])]`);
+
+            for (const scene of scenes) {
+                let problem = "";
+
+                try {
+                    run(`currentScene = ${JSON.stringify(scene)}; player.x = 100; player.y = 100; update(); update(); draw();`);
+                } catch (error) {
+                    problem = error.message;
+                }
+
+                check(`scene "${scene}" updates and draws`, problem === "", problem);
+            }
+
+            run(`currentScene = "tokyo"; player.x = 148; player.y = 108;`);
+
+            let menuProblem = "";
+
+            try {
+                run(`openPauseMenu()`);
+                check("pause menu shows the objective", game.document.getElementById("pauseObjective").textContent.startsWith("Objective:"));
+                run(`closePauseMenu()`);
+            } catch (error) {
+                menuProblem = error.message;
+            }
+
+            check("pause menu opens", menuProblem === "", menuProblem);
+
+            const saved = run(`getSaveData()`);
+            check("save data is versioned", saved.version === 1 && typeof saved.playSeconds === "number");
+
+            await sleep(500);
+            check("no runtime errors were reported", game.roninErrors.length === 0, game.roninErrors.join(" | "));
+
+            window.smokeResult = { passed, failed: failures.length, failures };
+            document.title = failures.length ? "SMOKE FAIL" : "SMOKE PASS";
+            const summary = document.createElement("h3");
+            summary.className = failures.length ? "fail" : "pass";
+            summary.textContent = `${passed} passed, ${failures.length} failed`;
+            out.prepend(summary);
+        }
+
+        main().catch((error) => {
+            window.smokeResult = { passed, failed: failures.length + 1, failures: [...failures, String(error)] };
+            document.title = "SMOKE FAIL";
+            out.textContent = `Test crashed: ${error && error.stack ? error.stack : error}`;
+        });
+    </script>
+</body>
+</html>
